@@ -12,6 +12,7 @@ load_env
 
 REALITY_DEST="${REALITY_DEST:-www.microsoft.com:443}"
 REALITY_SERVER_NAME="${REALITY_SERVER_NAME:-www.microsoft.com}"
+PUBLIC_IP="${MASTER_IP:-$(get_public_ip)}"
 
 log_info "=== 配置 VLESS REALITY Inbound ==="
 
@@ -98,8 +99,11 @@ echo ""
 echo "  1. 登录面板 → Settings → Core Settings"
 echo "  2. 在 inbounds 数组的 [ 后面，粘贴 reality-inbound.generated.json 的内容"
 echo "  3. 点击 Save → Restart Core"
-echo "  4. Settings → Hosts → 添加 Host，Address 填本机公网 IP"
-echo "  5. Users → 创建用户，Protocol 选 VLESS，Flow 选 xtls-rprx-vision"
+echo "  4. Settings → Hosts → VLESS TCP REALITY 仅保留一条 Host:"
+echo "       Address = ${PUBLIC_IP:-<主控公网IP>}  高级: Port=443, SNI=${REALITY_SERVER_NAME}"
+echo "       删除空白 Host；不用 SS 则清理 Shadowsocks TCP 的 Host"
+echo "  5. Users → Vless → 右侧 ⋮ → Flow=xtls-rprx-vision；仅勾选 Vless"
+echo "  6. 公网订阅: http://<IP>:8080/sub/<token>/clash-meta （见 setup-panel-proxy.sh）"
 echo ""
 echo "  PublicKey (客户端需要): ${PUBLIC_KEY}"
 echo "  ShortId:                ${SHORT_ID}"

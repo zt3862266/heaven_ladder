@@ -17,6 +17,8 @@ if [[ "${1:-}" == "--skip-panel-port" ]]; then
 fi
 
 PANEL_PORT="${PANEL_PORT:-8000}"
+PANEL_PROXY_PORT="${PANEL_PROXY_PORT:-8080}"
+PANEL_PUBLIC_ACCESS="${PANEL_PUBLIC_ACCESS:-true}"
 ADMIN_IP="${ADMIN_WHITELIST_IP:-}"
 
 log_info "=== Heaven Ladder 系统基线配置 ==="
@@ -57,12 +59,17 @@ ufw default allow outgoing
 ufw allow 22/tcp comment 'SSH'
 ufw allow 443/tcp comment 'VLESS REALITY'
 
-if [[ "${SKIP_PANEL_PORT}" == "false" && -n "${ADMIN_IP}" ]]; then
-  ufw allow from "${ADMIN_IP}" to any port "${PANEL_PORT}" proto tcp comment 'Marzban Panel'
-  log_info "面板端口 ${PANEL_PORT} 仅允许 ${ADMIN_IP}"
+if [[ "${SKIP_PANEL_PORT}" == "false" && "${PANEL_PUBLIC_ACCESS}" == "true" ]]; then
+  ufw allow "${PANEL_PROXY_PORT}/tcp" comment 'Marzban panel/sub (nginx proxy)'
+  log_info "已预留 UFW ${PANEL_PROXY_PORT}/tcp（由 setup-panel-proxy.sh 使用）"
+  log_info "Marzban 本机端口 ${PANEL_PORT} 不对公网开放；公网请用 :${PANEL_PROXY_PORT}"
+elif [[ "${SKIP_PANEL_PORT}" == "false" && -n "${ADMIN_IP}" ]]; then
+  ufw allow from "${ADMIN_IP}" to any port "${PANEL_PORT}" proto tcp comment 'Marzban Panel (legacy)'
+  log_info "面板端口 ${PANEL_PORT} 仅允许 ${ADMIN_IP}（未使用公网反代时）"
 elif [[ "${SKIP_PANEL_PORT}" == "false" ]]; then
-  log_warn "未设置 ADMIN_WHITELIST_IP，面板端口 ${PANEL_PORT} 未开放"
-  log_warn "建议: 在 .env 中设置 ADMIN_WHITELIST_IP，或通过 SSH 隧道访问面板"
+  log_warn "未设置公网反代且未设置 ADMIN_WHITELIST_IP"
+  log_warn "部署后请运行: sudo bash scripts/setup-panel-proxy.sh"
+  log_warn "或使用 SSH 隧道: ssh -N -L 8000:127.0.0.1:8000 root@<VPS>"
 else
   log_info "Worker 节点模式，跳过面板端口"
 fi

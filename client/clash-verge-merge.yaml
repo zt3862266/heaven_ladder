@@ -1,10 +1,11 @@
-# 客户端 Clash Meta 配置模板
-# 配合 Marzban 订阅使用：导入订阅后，可将下方策略组配置合并到 Clash Verge Rev
-
-# ── 使用方式 ──
-# 1. Clash Verge Rev → Profiles → 导入 Marzban 订阅 URL
-# 2. Settings → Clash Fields → 启用 profile 的 merge 或 override
-# 3. 将本文件内容作为 merge 配置，实现自动选路与分区
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 多节点 / 多区域 Worker 专用（新加坡 + 日本 + 美国）
+# 单节点主控部署请勿使用本文件 — 会导致 Clash 日志 dial DIRECT、无法翻墙
+# 单节点请仅用订阅 + 全局模式 + 手动选择 VLESS 节点，见 docs/client-setup.md
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# Clash Verge Rev 1.7+：订阅右键 → 编辑扩展配置，粘贴下方内容
+# 且 Host Remark 必须与下方组名一致
 
 proxy-groups:
   - name: "🚀 自动选择"
@@ -19,18 +20,18 @@ proxy-groups:
 
   - name: "🇸🇬 新加坡"
     type: select
-    proxies:
-      - DIRECT
+    use:
+      - filter: "新加坡|sg|SG"
 
   - name: "🇯🇵 日本"
     type: select
-    proxies:
-      - DIRECT
+    use:
+      - filter: "日本|jp|JP"
 
   - name: "🇺🇸 美国"
     type: select
-    proxies:
-      - DIRECT
+    use:
+      - filter: "美国|us|US"
 
   - name: "🔰 故障转移"
     type: fallback
@@ -45,9 +46,4 @@ rules:
   - GEOIP,CN,DIRECT
   - MATCH,🚀 自动选择
 
-# ── 节点命名建议（在 Marzban Host 中设置）──
-# 新加坡节点 Host Remark: 🇸🇬 新加坡
-# 日本节点 Host Remark:   🇯🇵 日本
-# 美国节点 Host Remark:   🇺🇸 美国
-#
-# 订阅导入后，Clash 会自动将各节点归入对应策略组
+# Host Remark 示例见 docs/client-setup.md

@@ -1,0 +1,8 @@
+# 单节点主控可选：Clash Verge Rev 1.7+ 订阅 → 右键 → 编辑扩展配置
+# 仅保留「记住所选节点」，不要添加会把流量导向 DIRECT 的 proxy-groups/rules
+
+profile:
+  store-selected: true
+
+# 可选：减少本机 IPv6 直连超时（按需取消注释）
+# ipv6: false

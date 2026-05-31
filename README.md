@@ -16,54 +16,61 @@
   └── 统一订阅 URL → 自动选路 / 故障转移
 ```
 
+## 端口说明（重要）
+
+| 端口 | 用途 |
+|------|------|
+| **443** | 代理流量（REALITY），需对 `0.0.0.0/0` 开放 |
+| **8000** | Marzban 仅本机 `127.0.0.1`（无 SSL 时无法改 0.0.0.0） |
+| **8080** | Nginx 公网反代 → 面板与订阅（`setup-panel-proxy.sh`） |
+
 ## 快速开始
 
 ### 前置条件
 
 - 阿里云海外 VPS（Ubuntu 22.04 / Debian 12），至少 1 台主控 + 1 台 Worker
-- 安全组已放行 `443/tcp`（REALITY）、`8443/udp`（Hysteria2 备用，可选）
-- 管理面板端口（8000）**仅对你的家庭公网 IP 开放**
+- 安全组：**443/tcp**、**8080/tcp** 对客户端可达；**不要**依赖公网直连 8000
+- 在 `.env` 填写 `MASTER_IP`（主控公网 IP）
 
 ### Day 1 — 主控节点
 
 ```bash
-# 1. 克隆仓库到 VPS
 git clone <your-repo-url> /opt/heaven_ladder
 cd /opt/heaven_ladder
 
-# 2. 复制并编辑配置
 cp .env.example .env
-nano .env
+nano .env   # 填写 MASTER_IP
 
-# 3. 系统基线（BBR、防火墙、自动更新）
-sudo bash scripts/system-baseline.sh
-
-# 4. 安装 Marzban 主控
-sudo bash scripts/install-marzban-master.sh
-
-# 5. 配置 VLESS REALITY inbound
-sudo bash scripts/configure-reality-inbound.sh
+sudo bash deploy.sh master
 ```
 
-安装完成后访问 `http://<主控IP>:8000/dashboard`，默认账号见脚本输出。
+`deploy.sh master` 依次执行：系统基线 → 安装 Marzban → REALITY → **面板反代 (8080)**。
+
+安装后：
+
+```bash
+sudo marzban cli admin create --sudo
+```
+
+- 面板：`http://<主控IP>:8080/dashboard/`
+- Clash 订阅：`http://<主控IP>:8080/sub/<token>/clash-meta`
+
+详细说明：[docs/panel-and-subscription.md](docs/panel-and-subscription.md)  
+踩坑汇总：[docs/troubleshooting.md](docs/troubleshooting.md)
 
 ### Day 2 — Worker 节点
-
-在每台 Worker VPS 上：
 
 ```bash
 git clone <your-repo-url> /opt/heaven_ladder
 cd /opt/heaven_ladder
-sudo bash scripts/system-baseline.sh --skip-panel-port
-sudo bash scripts/install-marzban-node.sh
+sudo bash deploy.sh node
 ```
 
-然后在 Marzban 面板 → **Node Settings** → **Add New Marzban Node**，按提示粘贴证书。
+主控面板 → **Node Settings** → **Add New Marzban Node**。
 
-### Day 3 — 客户端与加固
+### Day 3 — 客户端
 
-- 电脑/手机导入 Marzban 订阅链接，见 [docs/client-setup.md](docs/client-setup.md)
-- 可选：部署 Hysteria2 备用、Uptime Kuma 监控，见 [docs/operations.md](docs/operations.md)
+见 [docs/client-setup.md](docs/client-setup.md)。
 
 ## 目录结构
 
@@ -71,16 +78,22 @@ sudo bash scripts/install-marzban-node.sh
 |------|------|
 | [scripts/](scripts/) | VPS 部署脚本 |
 | [config/](config/) | XRay inbound 模板、节点清单 |
-| [client/](client/) | Clash Meta 客户端配置模板 |
-| [docs/](docs/) | 阿里云安全组、客户端、运维文档 |
+| [client/](client/) | Clash Verge 配置说明与模板 |
+| [docs/](docs/) | 安全组、面板、客户端、故障排查 |
 
-## 管理面板选型
+## 常用命令
 
-本项目采用 **Marzban**（非 3X-UI），原因：
+```bash
+sudo bash deploy.sh master        # 完整主控部署
+sudo bash deploy.sh panel-proxy   # 仅配置 8080 反代
+sudo bash scripts/configure-reality-inbound.sh
+bash scripts/health-check.sh
+sudo bash deploy.sh update
+```
 
-- 多节点统一管理，单一订阅 URL
-- 内置用户/流量/订阅管理
-- Docker 部署，升级简单
+## 管理面板
+
+采用 **Marzban**（非 3X-UI）：多节点统一管理、单一订阅 URL。见 [docs/panel-decision.md](docs/panel-decision.md)。
 
 ## 合规提示
 

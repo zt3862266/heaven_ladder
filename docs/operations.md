@@ -12,10 +12,8 @@
 ## 备份
 
 ```bash
-# 主控 VPS 上执行
 marzban backup
 
-# 或手动备份
 cp /var/lib/marzban/db.sqlite3 ~/marzban-backup-$(date +%Y%m%d).sqlite3
 cp /var/lib/marzban/xray_config.json ~/xray-backup-$(date +%Y%m%d).json
 cp /opt/heaven_ladder/config/generated-keys.env ~/keys-backup-$(date +%Y%m%d).env
@@ -23,95 +21,57 @@ cp /opt/heaven_ladder/config/generated-keys.env ~/keys-backup-$(date +%Y%m%d).en
 
 ## 添加新 Worker 节点
 
-1. 新 VPS 运行 `system-baseline.sh --skip-panel-port`
-2. 新 VPS 运行 `install-marzban-node.sh`
-3. 主控面板 → Node Settings → Add Node → 粘贴证书
-4. 为新节点配置独立 REALITY inbound（不同 privateKey / shortId）
-5. 客户端刷新订阅即可
+1. 新 VPS 运行 `deploy.sh node`
+2. 主控面板 → Node Settings → Add Node
+3. 为新节点配置独立 REALITY inbound
+4. 客户端刷新订阅
 
 ## REALITY 密钥轮换
 
 ```bash
-# 在主控 VPS
 sudo bash scripts/configure-reality-inbound.sh
-# 按提示在面板中更新 inbound 并重启 Core
-# 客户端刷新订阅
 ```
 
-## Hysteria2 备用协议
+面板更新 inbound → Restart Core → 客户端更新订阅。
 
-在 1~2 台节点部署：
+## 面板反代修复/重建
 
 ```bash
-sudo bash scripts/setup-hysteria2.sh
+sudo bash scripts/setup-panel-proxy.sh
+# 或
+sudo bash deploy.sh panel-proxy
 ```
 
-客户端会在订阅更新后自动获取 Hysteria2 节点（需在 Marzban 中配置对应 inbound）。
-
-## Uptime Kuma 监控
+## Hysteria2 / Uptime Kuma
 
 ```bash
-sudo bash scripts/setup-uptime-kuma.sh
+sudo bash deploy.sh extras
 ```
 
-建议监控项：
+## IP 被封应急
 
-| 名称 | 类型 | 目标 | 间隔 |
-|------|------|------|------|
-| SG REALITY | Port | sg-ip:443/tcp | 60s |
-| JP REALITY | Port | jp-ip:443/tcp | 60s |
-| US REALITY | Port | us-ip:443/tcp | 60s |
-| US Hysteria2 | Port | us-ip:8443/udp | 60s |
-
-通知渠道：Telegram Bot（在 `.env` 中配置 `TELEGRAM_BOT_TOKEN` 和 `TELEGRAM_CHAT_ID`）。
-
-## IP 被封应急流程
-
-```
-1. 确认被封: health-check.sh 全部 FAIL
-2. 阿里云控制台 → 更换 EIP
-3. Marzban 面板 → 更新 Node Address
-4. 客户端 → 刷新订阅
-5. 如仍不可用 → 运行 configure-reality-inbound.sh 轮换 REALITY 密钥
-```
+1. `health-check.sh` 确认节点不可达
+2. 更换 EIP，更新 `MASTER_IP`、Hosts、`setup-panel-proxy.sh`
+3. 客户端刷新订阅
 
 ## 安全加固
 
-| 措施 | 状态 |
+| 措施 | 说明 |
 |------|------|
-| 面板端口 IP 白名单 | system-baseline.sh 自动配置 |
-| 订阅 Token 鉴权 | Marzban Settings → Subscription |
-| SSH 密钥登录（禁用密码） | 建议手动配置 |
-| 定期更新 | update-all.sh |
-| 不公开分享订阅链接 | 人工遵守 |
+| 面板/订阅 | 8080 + 强密码 + 订阅 Token |
+| 代理 | 仅 443 对公网 |
+| 本机 8000 | 不对公网开放 |
+| SSH | 建议密钥登录 |
 
 ## 故障排查
 
-### Marzban 面板无法访问
+详见 [troubleshooting.md](troubleshooting.md)。
+
+### 快速命令
 
 ```bash
 marzban status
-marzban logs
-# 检查 UFW: ufw status
-# 检查阿里云安全组 8000 端口
-```
-
-### 节点 Connected 但客户端连不上
-
-```bash
-# 检查 XRay 是否监听 443
-ss -tlnp | grep 443
-# 检查 REALITY 配置
-docker exec $(docker ps --format '{{.Names}}' | grep marzban | head -1) xray version
-# 查看 XRay 日志
-marzban logs --follow
-```
-
-### Worker 节点无法连接主控
-
-```bash
-# Worker 上检查
-cat /var/lib/marzban-node/ssl_client_cert.pem  # 证书是否存在
-cd ~/Marzban-node && docker compose logs
-# 确认主控安全组允许 Worker IP 访问 62050
+marzban logs --tail 50
+ss -tlnp | grep -E '443|8000|8080'
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/dashboard/
 ```
