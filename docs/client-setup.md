@@ -33,17 +33,17 @@
 
 1. **订阅** → 粘贴 `.../clash-meta` → 导入 → 更新
 2. **不要**绑定 [clash-verge-merge.yaml](../client/clash-verge-merge.yaml)（仅多区域 Worker 时使用）
-3. 全局扩展配置可只保留：
-
-   ```yaml
-   profile:
-     store-selected: true
-   ```
-
-4. 模式：**全局 (Global)**
-5. **代理** 页：手动选择 **VLESS** 节点（勿选 DIRECT、勿仅依赖 ♻️ Automatic）
+3. **规则模式**：将 [client/clash-verge-rules-override.yaml](../client/clash-verge-rules-override.yaml) 全文粘贴到  
+   **订阅 → 右键该配置 → 编辑扩展配置**（推荐，避免影响其他订阅）  
+   或 **设置 → 全局扩展配置**（仅有一个订阅时）
+4. 保存后 **重新加载配置**（🔥）；**更新订阅**后若规则失效，检查扩展配置是否仍在
+5. 模式：**规则** 或 **全局** 均可  
+   - **规则**：须在左侧 **代理** 页选中 `♻️ Automatic` 或 VLESS 节点（否则首页显示「暂无激活的代理节点」）  
+   - **全局**：代理页手动选 **VLESS** 即可
 6. 开启 **TUN** 或系统代理
 7. 验证：https://ip.sb 应显示 VPS 地区 IP
+
+`MATCH` 规则 **不要**写成 `MATCH,"♻️ Automatic"`（带引号会报 `proxy not found`）。
 
 ### Clash Verge Rev 1.7+ 扩展配置位置
 
@@ -55,6 +55,10 @@
 ### 日志里 `dial DIRECT`
 
 表示未走代理 → 见 [troubleshooting.md](troubleshooting.md)。
+
+### 规则覆写模板
+
+见 [client/clash-verge-rules-override.yaml](../client/clash-verge-rules-override.yaml)。
 
 ## 手机 — iOS（Shadowrocket）
 

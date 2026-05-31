@@ -92,7 +92,9 @@ sudo marzban cli admin update -u <用户名>
 1. 关闭会把 `MATCH` 指向空策略组的 **订阅扩展配置**（旧版称 merge）。
 2. 模式选 **全局**，**手动选择** VLESS 节点（勿只依赖 ♻️ Automatic）。
 3. 开启 **TUN** 或系统代理。
-4. 单节点阶段勿使用 [client/clash-verge-merge.yaml](../client/clash-verge-merge.yaml)（仅多区域节点时使用）。
+4. 单节点阶段使用 [client/clash-verge-rules-override.yaml](../client/clash-verge-rules-override.yaml)，勿用 merge 模板。
+5. `MATCH` 勿加引号：用 `MATCH,♻️ Automatic`，勿用 `MATCH,"♻️ Automatic"`（会报 `proxy not found`）。
+6. 规则模式下须在 **代理** 页选中节点，否则显示「暂无激活的代理节点」。
 
 ### 订阅里 `flow: ''`
 

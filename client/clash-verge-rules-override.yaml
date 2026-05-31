@@ -1,0 +1,38 @@
+# Heaven Ladder — Clash Verge Rev 规则模式覆写（单节点 Marzban）
+#
+# 适用：已用 /clash-meta 订阅，且 proxy-groups 中含「♻️ Automatic」组（Marzban 默认）
+# 不适用：多区域 Worker 请用 clash-verge-merge.yaml
+#
+# ── 使用方式（推荐 B）──
+#   A) 设置 → 全局扩展配置 → 粘贴本文件（仅当你只有一个订阅时）
+#   B) 订阅 → 右键该配置 → 编辑扩展配置 → 粘贴（推荐，避免影响其他订阅）
+#
+# 保存后：重新加载配置（🔥）→ 模式选「规则」→ 左侧「代理」页选中 VLESS 或 ♻️ Automatic
+#
+# ── 常见错误 ──
+#   MATCH,"♻️ Automatic"   ❌ 不要加引号，会报 proxy not found
+#   MATCH,♻️ Automatic     ✅ 正确
+#
+# 若更新订阅后组名变化，打开配置 YAML 查看 proxy-groups[].name，并修改最后一条 MATCH
+
+profile:
+  store-selected: true
+
+# 减少 Windows 下 IPv6 直连超时（可选，若无不稳定问题可删此行）
+ipv6: false
+
+rules:
+  # 局域网直连
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  # 国内站点 / IP 直连
+  - GEOSITE,cn,DIRECT,no-resolve
+  - GEOIP,CN,DIRECT,no-resolve
+  # 其余流量走订阅中的自动测速组（组名须与订阅一致）
+  - MATCH,♻️ Automatic
+
+# ── 等效「编辑规则 → prepend」文本（不用扩展配置时可用）──
+# GEOIP,CN,DIRECT,no-resolve
+# GEOSITE,cn,DIRECT,no-resolve
+# MATCH,♻️ Automatic

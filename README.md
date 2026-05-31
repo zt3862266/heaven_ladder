@@ -70,7 +70,7 @@ sudo bash deploy.sh node
 
 ### Day 3 — 客户端
 
-见 [docs/client-setup.md](docs/client-setup.md)。
+见 [docs/client-setup.md](docs/client-setup.md)。Clash 规则模式覆写：[client/clash-verge-rules-override.yaml](client/clash-verge-rules-override.yaml)。
 
 ## 目录结构
 
@@ -78,7 +78,7 @@ sudo bash deploy.sh node
 |------|------|
 | [scripts/](scripts/) | VPS 部署脚本 |
 | [config/](config/) | XRay inbound 模板、节点清单 |
-| [client/](client/) | Clash Verge 配置说明与模板 |
+| [client/](client/) | Clash Verge 规则覆写与多节点 merge 模板 |
 | [docs/](docs/) | 安全组、面板、客户端、故障排查 |
 
 ## 常用命令
