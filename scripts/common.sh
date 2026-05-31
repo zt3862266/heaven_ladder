@@ -17,12 +17,25 @@ require_root() {
 }
 
 load_env() {
-  if [[ -f "${PROJECT_ROOT}/.env" ]]; then
-    # shellcheck disable=SC2046
-    export $(grep -v '^#' "${PROJECT_ROOT}/.env" | grep -v '^\s*$' | xargs)
-  else
+  if [[ ! -f "${PROJECT_ROOT}/.env" ]]; then
     log_warn "未找到 ${PROJECT_ROOT}/.env，使用默认值"
+    return
   fi
+  local line key value
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    line="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "${line}" || "${line}" == \#* ]] && continue
+    # 去掉行内注释（.env.example 中注释均在 # 前有空格）
+    line="${line%%#*}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [[ "${line}" == *"="* ]] || continue
+    key="${line%%=*}"
+    value="${line#*=}"
+    key="${key%"${key##*[![:space:]]}"}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    [[ "${key}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+    export "${key}=${value}"
+  done < "${PROJECT_ROOT}/.env"
 }
 
 detect_os() {
