@@ -7,6 +7,7 @@ profile:
 ipv6: false
 
 rules:
+  - DOMAIN-SUFFIX,chrqj.com,DIRECT
   - GEOSITE,cn,DIRECT,no-resolve
   - GEOIP,CN,DIRECT,no-resolve
   - MATCH,♻️ Automatic

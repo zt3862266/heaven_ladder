@@ -119,6 +119,22 @@ Test-NetConnection <公网IP> -Port 443
 Test-NetConnection <公网IP> -Port 8080
 ```
 
+## 开代理访问某国内站返回 403，关代理正常
+
+**原因**：该域名常未命中 `GEOSITE,cn`，规则落到 `MATCH` 走 VPS；国内站对**海外机房 IP**（你的代理出口）返回 403，并非「规则写错成必须代理」。
+
+**确认**：Clash **日志** 访问该站时是 `DIRECT` 还是 `♻️ Automatic`。
+
+**处理**：在 [client/clash-verge-rules-override.yaml](../client/clash-verge-rules-override.yaml) 的「自定义直连」段增加：
+
+```yaml
+- DOMAIN-SUFFIX,chrqj.com,DIRECT
+```
+
+置于 `GEOSITE,cn` **之前**，保存并重载配置。
+
+站点较多时，可改用完整规则集（ACL4SSR 等），见 Clash Verge 文档中的 rule-providers。
+
 ## 仅 IPv6 家庭网络
 
 - `ADMIN_WHITELIST_IP` 仅 IPv4 时，UFW/安全组对 8000 的白名单可能无效。

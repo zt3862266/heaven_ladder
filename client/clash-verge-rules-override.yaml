@@ -14,6 +14,8 @@
 #   MATCH,♻️ Automatic     ✅ 正确
 #
 # 若更新订阅后组名变化，打开配置 YAML 查看 proxy-groups[].name，并修改最后一条 MATCH
+#
+# 某国内站开代理 403、关代理正常：多为未命中 GEOSITE:cn 而走了代理，见 rules 中「自定义直连」段
 
 profile:
   store-selected: true
@@ -26,6 +28,9 @@ rules:
   - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
   - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
   - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  # 自定义直连：未收录进 GEOSITE:cn 的国内站，走代理会被 403（海外 VPS IP 被拦）
+  # 访问某站异常时，在 Clash 日志确认是否为代理出站，再在此追加 DOMAIN-SUFFIX
+  - DOMAIN-SUFFIX,chrqj.com,DIRECT
   # 国内站点 / IP 直连
   - GEOSITE,cn,DIRECT,no-resolve
   - GEOIP,CN,DIRECT,no-resolve
