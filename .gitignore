@@ -1,0 +1,14 @@
+# Heaven Ladder - Git 忽略规则
+
+# 敏感配置
+.env
+config/generated-keys.env
+config/generated-hysteria2.env
+config/nodes/inventory.json
+
+# 运行时生成
+config/marzban/reality-inbound.generated.json
+
+# OS
+.DS_Store
+Thumbs.db

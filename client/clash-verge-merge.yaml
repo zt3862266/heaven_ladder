@@ -1,0 +1,53 @@
+# 客户端 Clash Meta 配置模板
+# 配合 Marzban 订阅使用：导入订阅后，可将下方策略组配置合并到 Clash Verge Rev
+
+# ── 使用方式 ──
+# 1. Clash Verge Rev → Profiles → 导入 Marzban 订阅 URL
+# 2. Settings → Clash Fields → 启用 profile 的 merge 或 override
+# 3. 将本文件内容作为 merge 配置，实现自动选路与分区
+
+proxy-groups:
+  - name: "🚀 自动选择"
+    type: url-test
+    url: "https://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+    proxies:
+      - "🇸🇬 新加坡"
+      - "🇯🇵 日本"
+      - "🇺🇸 美国"
+
+  - name: "🇸🇬 新加坡"
+    type: select
+    proxies:
+      - DIRECT
+
+  - name: "🇯🇵 日本"
+    type: select
+    proxies:
+      - DIRECT
+
+  - name: "🇺🇸 美国"
+    type: select
+    proxies:
+      - DIRECT
+
+  - name: "🔰 故障转移"
+    type: fallback
+    url: "https://www.gstatic.com/generate_204"
+    interval: 300
+    proxies:
+      - "🇸🇬 新加坡"
+      - "🇯🇵 日本"
+      - "🇺🇸 美国"
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,🚀 自动选择
+
+# ── 节点命名建议（在 Marzban Host 中设置）──
+# 新加坡节点 Host Remark: 🇸🇬 新加坡
+# 日本节点 Host Remark:   🇯🇵 日本
+# 美国节点 Host Remark:   🇺🇸 美国
+#
+# 订阅导入后，Clash 会自动将各节点归入对应策略组

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "sg-primary",
+    "region": "新加坡",
+    "ip": "REPLACE_SG_IP",
+    "role": "master",
+    "protocols": ["vless-reality"],
+    "notes": "主控 + 主力节点，延迟最低"
+  },
+  {
+    "name": "jp-backup",
+    "region": "日本",
+    "ip": "REPLACE_JP_IP",
+    "role": "worker",
+    "protocols": ["vless-reality"],
+    "notes": "备用节点"
+  },
+  {
+    "name": "us-fallback",
+    "region": "美国",
+    "ip": "REPLACE_US_IP",
+    "role": "worker",
+    "protocols": ["vless-reality", "hysteria2"],
+    "notes": "远距离备用 + Hysteria2"
+  }
+]
